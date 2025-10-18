@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trivia Game</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#7c3aed;--muted:#94a3b8;--success:#16a34a;--danger:#ef4444}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    body{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#031027 0%, #021521 100%);color:#e6eef8}
+    .card{width:360px;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border-radius:14px;padding:22px;box-shadow:0 10px 30px rgba(2,6,23,0.6);}
+    h1{font-size:28px;margin:0 0 14px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);text-align:center}
+    p.lead{color:var(--muted);text-align:center;margin-top:0;margin-bottom:18px}
+    .btn-row{display:flex;gap:10px;justify-content:center;margin-bottom:14px}
+    button.btn{padding:10px 14px;border-radius:10px;border:0;background:#0b1320;color:#e6eef8;font-weight:600;cursor:pointer}
+    button.primary{background:linear-gradient(90deg,var(--accent),#4f46e5);box-shadow:0 6px 18px rgba(124,58,237,0.22)}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+    .question{background:rgba(255,255,255,0.02);padding:14px;border-radius:10px;margin-bottom:12px}
+    .options{display:flex;flex-direction:column;gap:10px}
+    .option{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);cursor:pointer;text-align:center}
+    .option:hover{transform:translateY(-3px);transition:all .16s}
+    .result{margin-top:12px;font-weight:700;text-align:center}
+    .result.correct{color:var(--success)}
+    .result.wrong{color:var(--danger)}
+    .hidden{display:none}
+    .center{display:flex;justify-content:center}
+    footer.small{font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
+    @media (max-width:420px){.card{width:92vw}}
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <h1>Trivia</h1>
+    <p class="lead">Test your knowledge — small game</p>
+
+    <div id="menu" class="center">
+      <div class="btn-row">
+        <button id="startBtn" class="btn primary">Start</button>
+        <button id="quitBtn" class="btn ghost">Quit</button>
+      </div>
+    </div>
+
+    <section id="game" class="hidden" aria-live="polite">
+      <div id="stage1">
+        <div class="question">Who was the first character to speak in Star Wars?</div>
+        <div class="options">
+          <div class="option" id="optYoda">Yoda</div>
+          <div class="option" id="optC3PO">C-3PO</div>
+        </div>
+        <div id="result1" class="result hidden"></div>
+        <div id="nextWrap" class="center hidden" style="margin-top:10px">
+          <button id="nextBtn" class="btn primary">Next Stage</button>
+        </div>
+      </div>
+
+      <div id="stage2" class="hidden">
+        <div class="question">In pottery what technique of formatting uses only the fingers?</div>
+        <div class="options">
+          <div class="option" id="optModel">Modelling</div>
+          <div class="option" id="optShoot">Shooting</div>
+        </div>
+        <div id="result2" class="result hidden"></div>
+        <div id="nextWrap2" class="center hidden" style="margin-top:10px">
+          <button id="nextBtn2" class="btn primary">Next Stage</button>
+        </div>
+      </div>
+
+      <div id="stage3" class="hidden">
+        <div class="question">What do the letters of the fast food chain KFC stand for?</div>
+        <div class="options">
+          <div class="option" id="optFried">Kentucy Fried Chicken</div>
+          <div class="option" id="optCheese">Kentucy Fresh Cheese</div>
+        </div>
+        <div id="result3" class="result hidden"></div>
+        <div id="moreWrap" class="center hidden" style="margin-top:10px">
+          <button class="btn ghost" disabled>More stages coming soon</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="quitMessage" class="hidden">
+      <p class="lead">oh :c ok! byee</p>
+    </section>
+
+    <footer class="small">(You can copy this file and open it in your browser)</footer>
+  </main>
+
+  <script>
+    const startBtn = document.getElementById('startBtn');
+    const quitBtn = document.getElementById('quitBtn');
+    const menu = document.getElementById('menu');
+    const game = document.getElementById('game');
+    const quitMessage = document.getElementById('quitMessage');
+
+    const stage1 = document.getElementById('stage1');
+    const stage2 = document.getElementById('stage2');
+    const stage3 = document.getElementById('stage3');
+
+    const optYoda = document.getElementById('optYoda');
+    const optC3PO = document.getElementById('optC3PO');
+    const result1 = document.getElementById('result1');
+    const nextWrap = document.getElementById('nextWrap');
+    const nextBtn = document.getElementById('nextBtn');
+
+    const optModel = document.getElementById('optModel');
+    const optShoot = document.getElementById('optShoot');
+    const result2 = document.getElementById('result2');
+    const nextWrap2 = document.getElementById('nextWrap2');
+    const nextBtn2 = document.getElementById('nextBtn2');
+
+    const optFried = document.getElementById('optFried');
+    const optCheese = document.getElementById('optCheese');
+    const result3 = document.getElementById('result3');
+    const moreWrap = document.getElementById('moreWrap');
+
+    function show(el){ el.classList.remove('hidden'); }
+    function hide(el){ el.classList.add('hidden'); }
+
+    startBtn.addEventListener('click', () => {
+      hide(menu); hide(quitMessage);
+      show(game); show(stage1); hide(stage2); hide(stage3);
+      result1.textContent=''; result1.className='result hidden'; nextWrap.classList.add('hidden');
+    });
+
+    quitBtn.addEventListener('click', () => {
+      hide(menu); hide(game); show(quitMessage);
+    });
+
+    function lockOptions(...opts){ opts.forEach(o => o.style.pointerEvents='none'); }
+
+    optYoda.onclick = () => { lockOptions(optYoda,optC3PO); result1.textContent='incorrect!!!'; result1.className='result wrong'; };
+    optC3PO.onclick = () => { lockOptions(optYoda,optC3PO); result1.textContent='correct!!!'; result1.className='result correct'; nextWrap.classList.remove('hidden'); };
+
+    nextBtn.onclick = () => {
+      hide(stage1); show(stage2);
+      result2.textContent=''; result2.className='result hidden'; nextWrap2.classList.add('hidden');
+      optModel.style.pointerEvents='auto'; optShoot.style.pointerEvents='auto';
+    };
+
+    optModel.onclick = () => { lockOptions(optModel,optShoot); result2.textContent='correct!!'; result2.className='result correct'; nextWrap2.classList.remove('hidden'); };
+    optShoot.onclick = () => { lockOptions(optModel,optShoot); result2.textContent='incorrect!'; result2.className='result wrong'; };
+
+    nextBtn2.onclick = () => {
+      hide(stage2); show(stage3);
+      result3.textContent=''; result3.className='result hidden'; moreWrap.classList.add('hidden');
+      optFried.style.pointerEvents='auto'; optCheese.style.pointerEvents='auto';
+    };
+
+    optFried.onclick = () => { lockOptions(optFried,optCheese); result3.textContent='correct'; result3.className='result correct'; moreWrap.classList.remove('hidden'); };
+    optCheese.onclick = () => { lockOptions(optFried,optCheese); result3.textContent='incorrect'; result3.className='result wrong'; };
+  </script>
+</body>
+</html>
